@@ -32,7 +32,7 @@ class Login extends React.Component {
       console.log(response.data);
       if (response.data.token) {
         localStorage.setItem('user', JSON.stringify(response.data));
-        this.props.navigate('/'); 
+        this.props.navigate('/home'); 
       }
     } catch (error) {
       this.setState({ error: error.response.data.message || 'Error logging in user' });
@@ -46,7 +46,7 @@ class Login extends React.Component {
       console.log(res);
       if (res.data.token) {
         localStorage.setItem('user', JSON.stringify(res.data));
-        this.props.navigate('/'); 
+        this.props.navigate('/home'); 
       }
     } catch (error) {
       this.setState({ error: 'Google login failed' });

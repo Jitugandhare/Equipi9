@@ -29,7 +29,7 @@ const userSchema = sequelize.define("User", {
     },
     createdBy: {
         type: Sequelize.DataTypes.STRING, 
-        allowNull: false,
+        defaultValue:"user",
     },
     updatedDate: {
         type: Sequelize.DataTypes.DATE,
@@ -43,7 +43,7 @@ const userSchema = sequelize.define("User", {
 });
 
 
-sequelize.sync() 
+sequelize.sync({alter:true}) 
     .then(() => {
         console.log('User table synced successfully!');
     })

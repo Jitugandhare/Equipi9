@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-
+import { useNavigate } from 'react-router-dom';
 
 class Register extends Component {
   constructor(props) {
@@ -33,13 +33,12 @@ class Register extends Component {
       });
 
       if (response.status === 200 && response.data) {
-        
         this.setState({
           error: '', 
           success: 'Registration successful! Redirecting to login...'
         });
         setTimeout(() => {
-          this.props.history.push('/login');
+          this.props.navigate('/login'); 
         }, 2000); 
       } else {
         this.setState({ error: 'Unexpected response format' });
@@ -98,8 +97,13 @@ class Register extends Component {
   }
 }
 
-export default Register;
+// Wrap Register component with `useNavigate` hook
+export default function RegisterWithNavigate(props) {
+  const navigate = useNavigate();
+  return <Register {...props} navigate={navigate} />;
+}
 
+// Styled Components
 const FormWrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -147,3 +151,4 @@ const SuccessMessage = styled.div`
   color: green;
   margin-top: 10px;
 `;
+
