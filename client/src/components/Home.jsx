@@ -1,42 +1,53 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
-const Home = () => {
-  const [user, setUser] = useState(null);
-  const navigate = useNavigate();
+class Home extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      user: null,
+    };
+  }
 
-  useEffect(() => {
-   
+  componentDidMount() {
     const userData = localStorage.getItem('user');
     if (!userData) {
-      navigate('/login');
+      this.props.navigate('/login'); 
     } else {
-      setUser(JSON.parse(userData));
+      const parsedUser = JSON.parse(userData);
+      this.setState({ user: parsedUser }); 
     }
-  }, [navigate]);
+  }
 
-  const handleLogout = () => {
+  handleLogout = () => {
     localStorage.removeItem('user');
-    navigate('/login');
+    this.props.navigate('/login'); 
   };
 
-  return (
-    <HomeWrapper>
-      {user ? (
-        <>
-          <WelcomeMessage>Welcome, {user.firstname}!</WelcomeMessage>
-          <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
-        </>
-      ) : (
-        <h2>Loading...</h2>
-      )}
-    </HomeWrapper>
-  );
+  render() {
+    const { user } = this.state;
+    return (
+      <HomeWrapper>
+        {user ? (
+          <>
+            <WelcomeMessage>Welcome, {user.firstname || 'User'}!</WelcomeMessage>
+            <LogoutButton onClick={this.handleLogout}>Logout</LogoutButton>
+          </>
+        ) : (
+          <h2>Loading...</h2>
+        )}
+      </HomeWrapper>
+    );
+  }
+}
+
+const HomeWithNavigate = (props) => {
+  const navigate = useNavigate();
+  return <Home {...props} navigate={navigate} />;
 };
 
-export default Home;
-
+export default HomeWithNavigate;
 
 const HomeWrapper = styled.div`
   display: flex;

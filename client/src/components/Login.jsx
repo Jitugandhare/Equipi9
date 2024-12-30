@@ -2,84 +2,100 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google'; // Google OAuth import
+import { GoogleLogin } from '@react-oauth/google';
 
-const Login = () => {
-  const [formData, setFormData] = useState({ mobilenumber: '', password: '' });
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+class Login extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      formData: {
+        mobilenumber: '',
+        password: ''
+      },
+      error: ''
+    };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleGoogleLogin = this.handleGoogleLogin.bind(this);
+  }
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  handleChange(e) {
+    this.setState({
+      formData: { ...this.state.formData, [e.target.name]: e.target.value }
+    });
+  }
 
-  const handleSubmit = async (e) => {
+  async handleSubmit(e) {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8080/user/login', formData);
-      console.log(response);
+      const response = await axios.post('http://localhost:8080/user/login', this.state.formData);
+      console.log(response.data);
       if (response.data.token) {
         localStorage.setItem('user', JSON.stringify(response.data));
-        navigate('/');
+        this.props.navigate('/'); 
       }
     } catch (error) {
-      setError(error.response.data.message || 'Error logging in user');
+      this.setState({ error: error.response.data.message || 'Error logging in user' });
     }
-  };
+  }
 
-  // Google OAuth response handler
-  const handleGoogleLogin = async (response) => {
+  async handleGoogleLogin(response) {
     try {
       const { tokenId } = response;
       const res = await axios.post('http://localhost:8080/user/google', { tokenId });
       console.log(res);
       if (res.data.token) {
         localStorage.setItem('user', JSON.stringify(res.data));
-        navigate('/');
+        this.props.navigate('/'); 
       }
     } catch (error) {
-      setError('Google login failed');
+      this.setState({ error: 'Google login failed' });
     }
-  };
+  }
 
-  return (
-    <FormWrapper>
-      <FormContainer>
-        <h2>Login</h2>
-        <form onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            name="mobilenumber"
-            placeholder="Mobile Number"
-            value={formData.mobilenumber}
-            onChange={handleChange}
+  render() {
+    const { formData, error } = this.state;
+    return (
+      <FormWrapper>
+        <FormContainer>
+          <h2>Login</h2>
+          <form onSubmit={this.handleSubmit}>
+            <Input
+              type="text"
+              name="mobilenumber"
+              placeholder="Mobile Number"
+              value={formData.mobilenumber}
+              onChange={this.handleChange}
+            />
+            <Input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={this.handleChange}
+            />
+            <Button type="submit">Login</Button>
+          </form>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+
+          <RegisterLink>
+            <p>Don't have an account? <a href="/register">Register</a></p>
+          </RegisterLink>
+
+          <GoogleLogin
+            onSuccess={this.handleGoogleLogin}
+            onError={() => this.setState({ error: 'Google login failed' })}
           />
-          <Input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          <Button type="submit">Login</Button>
-        </form>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
+        </FormContainer>
+      </FormWrapper>
+    );
+  }
+}
 
-        <RegisterLink>
-          <p>Don't have an account? <a href="/register">Register</a></p>
-        </RegisterLink>
-
-        {/* Google OAuth Button */}
-        <GoogleLogin 
-          onSuccess={handleGoogleLogin} 
-          onError={() => setError('Google login failed')}
-        />
-      </FormContainer>
-    </FormWrapper>
-  );
-};
-
-export default Login;
+export default function LoginWithNavigate(props) {
+  const navigate = useNavigate();
+  return <Login {...props} navigate={navigate} />;
+}
 
 const FormWrapper = styled.div`
   display: flex;

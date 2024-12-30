@@ -1,92 +1,104 @@
-import React, { useState } from 'react';
+import React, { Component } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
-const Register = () => {
-  const [formData, setFormData] = useState({
-    firstname: '',
-    lastname: '',
-    mobilenumber: '',
-    password: '',
-  });
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+class Register extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      firstname: '',
+      lastname: '',
+      mobilenumber: '',
+      password: '',
+      error: '',
+      success: '',
+    };
+  }
+
+  handleChange = (e) => {
+    this.setState({ [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  handleSubmit = async (e) => {
     e.preventDefault();
+    const { firstname, lastname, mobilenumber, password } = this.state;
+
     try {
-      
-      const response = await axios.post('http://localhost:8080/user/register', formData);
+      const response = await axios.post('http://localhost:8080/user/register', {
+        firstname,
+        lastname,
+        mobilenumber,
+        password
+      });
 
-     
-
-      
-      if (response && response.data && response.data.message === 'User registered successfully') {
-        navigate('/login');
+      if (response.status === 200 && response.data) {
+        
+        this.setState({
+          error: '', 
+          success: 'Registration successful! Redirecting to login...'
+        });
+        setTimeout(() => {
+          this.props.history.push('/login');
+        }, 2000); 
       } else {
-        setError('Unexpected response format');
+        this.setState({ error: 'Unexpected response format' });
       }
     } catch (error) {
-    
-      console.log(error);
-
-     
-      if (error.response && error.response.data) {
-        setError(error.response.data.message || 'Error registering user');
-      } else {
-        setError('Network or server error');
-      }
+      const errorMessage = error.response
+        ? error.response.data.message
+        : 'Error registering user';
+      this.setState({ error: errorMessage });
     }
   };
 
-  return (
-    <FormWrapper>
-      <FormContainer>
-        <h2>Register</h2>
-        <form onSubmit={handleSubmit}>
-          <Input
-            type="text"
-            name="firstname"
-            placeholder="First Name"
-            value={formData.firstname}
-            onChange={handleChange}
-          />
-          <Input
-            type="text"
-            name="lastname"
-            placeholder="Last Name"
-            value={formData.lastname}
-            onChange={handleChange}
-          />
-          <Input
-            type="text"
-            name="mobilenumber"
-            placeholder="Mobile Number"
-            value={formData.mobilenumber}
-            onChange={handleChange}
-          />
-          <Input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          <Button type="submit">Register</Button>
-        </form>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-      </FormContainer>
-    </FormWrapper>
-  );
-};
+  render() {
+    const { firstname, lastname, mobilenumber, password, error, success } = this.state;
+
+    return (
+      <FormWrapper>
+        <FormContainer>
+          <h2>Register</h2>
+          <form onSubmit={this.handleSubmit}>
+            <Input
+              type="text"
+              name="firstname"
+              placeholder="First Name"
+              value={firstname}
+              onChange={this.handleChange}
+            />
+            <Input
+              type="text"
+              name="lastname"
+              placeholder="Last Name"
+              value={lastname}
+              onChange={this.handleChange}
+            />
+            <Input
+              type="text"
+              name="mobilenumber"
+              placeholder="Mobile Number"
+              value={mobilenumber}
+              onChange={this.handleChange}
+            />
+            <Input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={password}
+              onChange={this.handleChange}
+            />
+            <Button type="submit">Register</Button>
+          </form>
+          {success && <SuccessMessage>{success}</SuccessMessage>}
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+        </FormContainer>
+      </FormWrapper>
+    );
+  }
+}
 
 export default Register;
-
 
 const FormWrapper = styled.div`
   display: flex;
@@ -131,3 +143,7 @@ const ErrorMessage = styled.div`
   margin-top: 10px;
 `;
 
+const SuccessMessage = styled.div`
+  color: green;
+  margin-top: 10px;
+`;
