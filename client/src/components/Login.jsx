@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+// Login.js
+import React from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
+import GoogleLoginComponent from './GoogleLoginComponent'; 
 
 class Login extends React.Component {
   constructor(props) {
@@ -32,7 +33,7 @@ class Login extends React.Component {
       console.log(response.data);
       if (response.data.token) {
         localStorage.setItem('user', JSON.stringify(response.data));
-        this.props.navigate('/home'); 
+        this.props.navigate('/home');
       }
     } catch (error) {
       this.setState({ error: error.response.data.message || 'Error logging in user' });
@@ -46,7 +47,7 @@ class Login extends React.Component {
       console.log(res);
       if (res.data.token) {
         localStorage.setItem('user', JSON.stringify(res.data));
-        this.props.navigate('/home'); 
+        this.props.navigate('/home');
       }
     } catch (error) {
       this.setState({ error: 'Google login failed' });
@@ -82,7 +83,8 @@ class Login extends React.Component {
             <p>Don't have an account? <a href="/register">Register</a></p>
           </RegisterLink>
 
-          <GoogleLogin
+          {/* Use GoogleLoginComponent here */}
+          <GoogleLoginComponent 
             onSuccess={this.handleGoogleLogin}
             onError={() => this.setState({ error: 'Google login failed' })}
           />

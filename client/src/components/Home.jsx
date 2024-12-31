@@ -31,7 +31,8 @@ class Home extends React.Component {
       <HomeWrapper>
         {user ? (
           <>
-            <WelcomeMessage>Welcome, {user.firstname || 'User'}!</WelcomeMessage>
+           <WelcomeMessage>Good Morning Mr. {user.firstname && user.lastname ? `${user.firstname} ${user.lastname}` : 'User'}!</WelcomeMessage>
+
             <LogoutButton onClick={this.handleLogout}>Logout</LogoutButton>
           </>
         ) : (
