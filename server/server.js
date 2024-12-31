@@ -6,8 +6,7 @@ const passport = require('./configue/passport.js')
 const session = require('express-session');
 const dotenv = require('dotenv');
 const cors = require('cors')
-const path=require('path');
-dotenv.config();
+const path=require('path');dotenv.config();
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -24,11 +23,6 @@ app.use(passport.session());
 app.use('/user', userRouter);
 
 
-app.use(express.static(path.join(__dirname, "/client/dist")));
-
-app.get("*", (req,res)=>{
-    res.sendFile(path.resolve(__dirname, "client", "dist", "index.html"));
-})
 
 app.listen(`${process.env.PORT}`, async (req, res) => {
     try {
